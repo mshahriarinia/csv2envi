@@ -1,0 +1,77 @@
+csv2envi.cpp
+
+
+Overview
+--------
+The csv2envi program will take a csv file exported from SciDB and generate the
+corresponding ENVI binary/header file pair in the specified format: bsq, bil,
+or bip.
+
+
+Exporting Array From SciDB
+--------------------------
+The SciDB function 'save' exports an array stored in SciDB to one of the
+specified formats: csv, csv+, dcsv, dense, lcsv+, lsparse, sparse. This program
+only supports conversion from csv to ENVI. See SciDB User Guide for details on
+the 'save' function.
+
+
+Running csv2envi
+----------------
+To run this program, enter the following in the command line:
+
+./csv2envi inputFilePath outputFilePath lines samples bands
+           precision interleave byteOrder
+
+  Arguments         Description
+  ---------         -----------
+  inputFilePath     Full path to the input csv file.
+  outputFilePath    Full path to the ouput ENVI file.
+  lines             Number of lines.
+  samples           Number of samples.
+  bands             Number of bands.
+  precision         1 (1-byte unsigned integer)
+                    2 (2-byte signed integer)
+                    3 (4-byte signed integer)
+                    4 (4-byte float)
+                    5 (8-byte double)
+                    12 (2-byte unsigned integer)
+  interleave        bsq (band sequential)
+                    bil (band interleave by line)
+                    bip (band interleave by pixel)
+  byteOrder         0 (little-endian)
+                    1 (big-endian)
+
+The command line arguments must correspond to the attributes of the array stored
+in SciDB. E.g. if the array you wish to export has 2-byte signed integers stored
+in each cell, then you must specify a value of 2 for the precision.
+
+Example Cases
+-------------
+1. SciDB array 'exportme' is a 3x4x5 dimension array storing 1-byte unsigned
+   integers where lines = 3, samples = 4, bands = 5.
+   
+   Export the array from SciDB to a csv file using the afl command in SciDB:
+   save(exportme, '/home/scidb/exportme.csv', -2, 'csv');
+   
+   Generate a bil file from the csv file:
+   csv2envi /home/scidb/exportme.csv /home/scidb/exportme 3 4 5 1 bil 0
+   
+   This generates 2 files: exportme.bil and exportme.hdr.
+
+   Note: The outputFilePath does not include the extension .bil. If it does,
+   the program will strip the extension specified in the outputFilePath.
+
+2. SciDB array 'fielddata' is a 6x3x4 dimension array storing 2-byte signed
+   integers where lines = 6, samples = 3, and bands = 5.
+   
+   Export the array from SciDB to a csv file using the afl command in SciDB:
+   save(fielddata, '/home/scidb/fielddata.csv', -2, 'csv');
+   
+   Generate a bsq file from the csv file:
+   csv2envi /home/scidb/fielddata.csv /home/scidb/fielddata 6 3 4 2 bsq 1
+   
+   This generates 2 files: fielddata.bsq and fielddata.hdr.
+
+   Note: The outputFilePath does not include the extension .bil. If it does,
+   the program will strip the extension specified in the outputFilePath.
